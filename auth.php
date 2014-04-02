@@ -8,10 +8,9 @@
 <body>
 <?php
 require_once 'include/login.php';
-$hostAndDb = "mysql:host=$host;dbname=$database";
+require_once 'include/lib.php';
+$db = setupdb();
 try {
-  $db = new PDO( $hostAndDb, $username, $password, array(PDO::ATTR_PERSISTENT => true) );
-  $db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
   $query = "SELECT * FROM User WHERE account = ? AND password = ?";
   $sth = $db->prepare($query);
   $sth->execute( array($_POST[account], md5($_POST[passwd])) );
@@ -29,10 +28,9 @@ if( $result == false ) {
     <a href="index.html" target="_self"> Back </a> <br>
 _HTML;
 } else {
-  $_SESSION[username] = $_POST[account];
+  $_SESSION[username] = $result->account;
   $_SESSION[is_admin] = $result->is_admin;
-  echo session_id();
-  header( "location: flight.php" );
+  header( "location: home.php" );
 }
 
 ?>
