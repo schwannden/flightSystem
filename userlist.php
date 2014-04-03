@@ -14,13 +14,11 @@
 require_once 'include/login.php';
 require_once 'include/lib.php';
 
-$user = new usermod( $hostAndDb, $username, $password );
+$user = new user( $hostAndDb, $username, $password );
 if( isset($_POST[command]) )
   if( $_POST[command] == "UPDATE_USER" ) {
     $user->update( $_POST[id], $_POST[is_admin] == "true" );
     echo "The change will take effect the next time this user log in";
-  } else if( $_POST[command] == "EDIT_USER" ) {
-    $user->erase( $_POST[id] );
   } else if( $_POST[command] == "ADD_USER" ) {
     $add_status = $user->add( $_POST[account], $_POST[password], $_POST[retype_password], $_POST[is_admin]=="true" );
   } else if( $_POST[command] == "DELETE_USER" ) {

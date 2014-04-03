@@ -18,7 +18,7 @@ function setupdb() {
   }
 }
 
-class usermod {
+class user {
   private $db;
   public function __construct($hostAndDb, $username, $password) {
     try {
@@ -68,12 +68,6 @@ class usermod {
     }
   }
 
-  public function reset_auto_increment() {
-    $query = "ALTER TABLE User AUTO_INCREMENT=1";
-    $sth = $this->db->prepare($query);
-    $sth->execute();
-  }
-
   public function show() {
     #show all records
     $query = "SELECT * FROM User";
@@ -109,6 +103,12 @@ _HTML;
     echo "</table>";
   }
 
+  private function reset_auto_increment() {
+    $query = "ALTER TABLE User AUTO_INCREMENT=1";
+    $sth = $this->db->prepare($query);
+    $sth->execute();
+  }
+
   private function validate( $account, $password, $retype_password ) {
     try {
       $query = "SELECT * FROM User WHERE account=?";
@@ -132,7 +132,7 @@ _HTML;
   }
 }
    
-class flightmod {
+class flight {
   private $db;
   public function __construct($hostAndDb, $username, $password) {
     try {
@@ -180,12 +180,6 @@ class flightmod {
     }
   }
 
-  public function reset_auto_increment() {
-    $query = "ALTER TABLE Flight AUTO_INCREMENT=1";
-    $sth = $this->db->prepare($query);
-    $sth->execute();
-  }
-
   public function show( $is_admin ) {
     #show all records
     $query = "SELECT * FROM Flight";
@@ -225,6 +219,84 @@ _HTML;
   </tr>
 _HTML;
       }
+    }
+    echo "</table>";
+  }
+
+  public function reset_auto_increment() {
+    $query = "ALTER TABLE Flight AUTO_INCREMENT=1";
+    $sth = $this->db->prepare($query);
+    $sth->execute();
+  }
+}
+
+class airport {
+  private $db;
+  public function __construct($hostAndDb, $username, $password) {
+    try {
+      $this->db = new PDO( $hostAndDb, $username, $password, array(PDO::ATTR_PERSISTENT => true) );
+      $this->db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+    } catch( PDOException $e ) {
+      print "Error in airport__constructor(): " . $e->getMessage() . "<br/>";
+      die();
+    }
+  }
+
+  public function add($name, $longitude, $latitude) {
+    try {
+      $query = "INSERT into Airport VALUES (?, ?, ?)";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($name, $longitude, $latitude) );
+      return true;
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+
+  public function erase( $name ) {
+    try {
+      $query = "DELETE FROM Airport WHERE name=?";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($name) );
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+  
+  public function update($name, $longitude, $latitude) {
+    try{
+      $query = "UPDATE Airport SET 
+        longitude=?, latitude=? 
+        WHERE name=?";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($longitude, $latitude, $name) );
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+
+  public function show() {
+    #show all records
+    $query = "SELECT * FROM Airport";
+    $sth = $this->db->prepare($query);
+    $sth->execute();
+    $sth->setFetchMode( PDO::FETCH_ASSOC );
+    echo "<table border=\"5\">
+      <tr> <th> Airport Name </th>  <th> Position </th> <th> Action </th> </tr>";
+
+    while( $row = $sth->fetch() ) {
+      echo <<<_HTML
+  <form method="post" >
+           <input type="hidden" name="name" value=$row[name]>
+    <tr>
+      <td> $row[name] </td>
+      <td> <input type="text" name="longitude"  value=$row[longitude]>                  </td>
+      <td> <input type="text" name="latitude"   value=$row[latitude]>                   </td>
+      <td> <button name="command" type="submit" value="UPDATE_AIRPORT"> Update </button>
+           <button name="command" type="submit" value="DELETE_AIRPORT"> Delete </button> </td>
+    </tr>
+  </form>
+_HTML;
     }
     echo "</table>";
   }

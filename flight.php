@@ -14,24 +14,43 @@
 require_once 'include/login.php';
 require_once 'include/lib.php';
 echo "<h2> Welcome $_SESSION[username] </h2>";
-$flight = new flightmod( $hostAndDb, $username, $password );
+$flight  = new flight(  $hostAndDb, $username, $password );
+$airport = new airport( $hostAndDb, $username, $password );
 if( $_SESSION[is_admin] == true ) {
+  echo "<br> <h2> Manage Flight </h2>";
   #admin issued a command, here we don't need to sanitize command, because it has no danger
   if( isset( $_POST[command] ) ) {
-    #admin issued delete
-    if( $_POST[command] == "DELETE_FLIGHT" ) {
-      $flight->erase( $_POST[id] );
-    #admin issued add
-    } else if( $_POST[command] == "ADD" ) {
-      $flight->add( $_POST[flight_number], $_POST[departure],
-        $_POST[destination]  , $_POST[departure_date], $_POST[arrival_date] );
-    #admin issued edit
-    } else if( $_POST[command] == 'UPDATE_FLIGHT' ) {
-      $flight->update( $_POST[id], $_POST[flight_number], $_POST[departure], 
-        $_POST[destination], $_POST[departure_date], $_POST[arrival_date] );
+    switch( $_POST[command] ) {
+      #admin issued delete flight
+      case "DELETE_FLIGHT":
+        $flight->erase( $_POST[id] );
+        break; 
+      #admin issued add flight
+      case "ADD_FLIGHT":
+        $flight->add( $_POST[flight_number], $_POST[departure], 
+          $_POST[destination]  , $_POST[departure_date], $_POST[arrival_date] );
+        break; 
+      #admin issued edit flight
+      case "UPDATE_FLIGHT":
+        $flight->update( $_POST[id], $_POST[flight_number], $_POST[departure], 
+          $_POST[destination], $_POST[departure_date], $_POST[arrival_date] );
+        break; 
+      #admin issued delete airport
+      case "DELETE_AIRPORT":
+        $airport->erase( $_POST[name] );
+        break; 
+      #admin issued add airport
+      case "ADD_AIRPORT":
+        $airport->add( $_POST[name], $_POST[longitude], $_POST[latitude]);
+        break; 
+      #admin issued edit airport
+      case "UPDATE_AIRPORT":
+        echo "$_POST[name] $_POST[longitude] $_POST[latitude]";
+        $airport->update( $_POST[name], $_POST[longitude], $_POST[latitude] );
+        break; 
     }
   }
-  #a form for admin to add
+  #a form for admin to add flight record
   echo <<<_HTML
   <pre>
     <form action="flight.php" method="post">
@@ -40,11 +59,27 @@ if( $_SESSION[is_admin] == true ) {
        destination: <input type="text" name="destination" >
     departure_date: <input type="text" name="departure_date" >
       arrival_date: <input type="text" name="arrival_date" >
-    <button name="command" type="submit" value="ADD"> ADD RECORD </button> </form>
+    <button name="command" type="submit" value="ADD_FLIGHT"> ADD FLIGHT </button> </form>
   </pre>
 _HTML;
 }
-  $flight->show($_SESSION[is_admin]);
+
+$flight->show($_SESSION[is_admin]);
+
+if( $_SESSION[is_admin] ) {
+  echo "<br> <h2> Manage Airport </h2>";
+  #a form for admin to add flight record
+  echo <<<_HTML
+  <pre>
+    <form action="flight.php" method="post">
+          name: <input type="text" name="name"      value="XYZ">
+     longitude: <input type="text" name="longitude" value="xx.xxxxx">
+      latitude: <input type="text" name="latitude"  value="xx.xxxxx">
+    <button name="command" type="submit" value="ADD_AIRPORT"> ADD AIRPORT </button> </form>
+  </pre>
+_HTML;
+  $airport->show();
+}
 
 ?>
 <br>

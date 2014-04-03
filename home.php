@@ -46,9 +46,9 @@ _HTML;
     }
     ?>
    
-    <div id="col1"><a href="http://ncadpostgraduate.com/index.php/yearbook"><img src="http://chineseaca.pic6.eznetonline.com/upload/document_list-512_cFin.png" alt="Graduate Work Image" width="251" height="251" />
+    <div id="col1"><a href="home.php"><img src="http://chineseaca.pic6.eznetonline.com/upload/document_list-512_cFin.png" alt="Graduate Work Image" width="251" height="251" />
       </a><div id="text">
-      <h1><a href="http://ncadpostgraduate.com/index.php/yearbook">My Favorite</a></h1>
+      <h1><a href="home.php">My Favorite</a></h1>
     </div></div>
   </div>
   </div></div>
