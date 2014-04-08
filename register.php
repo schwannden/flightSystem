@@ -9,7 +9,7 @@
 <?php
 require_once 'include/login.php';
 require_once 'include/lib.php';
-$user = new usermod( $hostAndDb, $username, $password );
+$user = new user( $hostAndDb, $username, $password );
 if( isset($_POST[submit]) ) {
   $useradd_status = $user->add( $_POST[account], $_POST[password], $_POST[retype_password], false );
   if( $useradd_status === true ) {
@@ -25,7 +25,7 @@ _HTML;
   echo <<<_HTML
   <pre>
   <form action='register.php', method='post'>
-            Account: <input type="text" name="account", value="$_POST[account]" >
+            Account: <input type="text" name="account", value=$_POST[account] >
            Password: <input type="password" name="password">
     retype-Password: <input type="password" name="retype_password">
   </pre>

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
 <?php
   session_start();
   if( !isset($_SESSION[username]) )
     die();
 ?>
+<!DOCTYPE html>
 <html>
 <head>
   <title> "Flights" </title>
@@ -58,7 +58,27 @@ if( $_SESSION[is_admin] == true ) {
 _HTML;
 }
 
-$flight->show($_SESSION[is_admin]);
+echo <<<_HTML
+  <pre>
+    Sorted by <form action="flight.php" method="post">
+      <select name="ordered_by" selected="selected" size="1">
+        <option value="flight_number">  Flight Number  </option>
+        <option value="departure">      Departure      </option>
+        <option value="destination">    Destination    </option>
+        <option value="departure_date"> Departure Date </option>
+        <option value="arrival_date">   Arrival Date   </option>
+        <option value="price">          Price   </option>
+      </select> <select name="ordered_how" selected="selected" size="1">
+        <option value="ASC">  Increasing </option>
+        <option value="DESC"> Decreasing </option>
+      </select> <button name="command" type="submit" value="CHANGE_ORDER"> APPLY </button>
+    </form>
+  </pre>
+_HTML;
+if( isset( $_POST[command] ) and $_POST[command] == "CHANGE_ORDER" )
+  $flight->show($_SESSION[is_admin], $_POST[ordered_by], $_POST[ordered_how]);
+else
+  $flight->show($_SESSION[is_admin]);
 
 if( $_SESSION[is_admin] ) {
   echo "<br> <h2> Manage Airport </h2>";

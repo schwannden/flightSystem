@@ -180,19 +180,22 @@ class flight {
     }
   }
 
-  public function show( $is_admin ) {
+  public function show( $is_admin, $ordered_by="id", $ordered_how="ASC" ) {
     #show all records
-    $query = "SELECT * FROM Flight";
+    #var_dump(  $ordered_by );
+    #var_dump(  $ordered_how );
+    $query = "SELECT * FROM Flight ORDER BY ? ?";
     $sth = $this->db->prepare($query);
-    $sth->execute();
+    $sth->execute(array($ordered_by, $ordered_how));
     $sth->setFetchMode( PDO::FETCH_ASSOC );
     echo "<table border=\"5\">
       <tr> <th> Flight Number </th> <th> Departure </th>
       <th> Destination </th>        <th> Departure Date </th> 
       <th> Arrival Date </th>       <th> Price </th>";
-    if( $is_admin )
+    if( $is_admin ) {
       echo "<th> Action </th> </tr>";
-
+    }
+    
     while( $row = $sth->fetch() ) {
       if( $is_admin == true ) {
         echo <<<_HTML
@@ -229,6 +232,7 @@ _HTML;
     $sth->execute();
   }
 }
+
 
 class airport {
   private $db;

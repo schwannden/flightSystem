@@ -1,9 +1,9 @@
-<!DOCTYPE html>
 <?php
   session_start();
   if( !isset($_SESSION[is_admin]) or $_SESSION[is_admin] != true )
     die();
 ?>
+<!DOCTYPE html>
 <html>
 <head>
   <title> User List </title>
