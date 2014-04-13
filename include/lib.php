@@ -77,10 +77,12 @@ class user {
     echo "<table border=\"1\">
     <tr> <th> Account </th> <th> Identity </th> <th> Update </th> </tr>";
     while( $row = $sth->fetch() ) {
-      $identity = $row[is_admin]? "admin" : "regular user";
-      $alternate_identity = $row[is_admin]? "regular user" : "admin";
-      $option1 = $row[is_admin]? "true" : "false";
-      $option2 = $row[is_admin]? "false" : "true";
+      if( $row[is_admin] == true ) {
+        $option = "<option value=\"true\"> admin </option>";
+      } else {
+        $option = "<option value=\"false\"> regular user </option>
+                   <option value=\"true\"> admin </option>";
+      }
       echo <<<_HTML
   <form method="post" >
     <tr>
@@ -88,8 +90,7 @@ class user {
       <td>
           <input type="hidden" name="id" value=$row[id]>
           <select name="is_admin" selected="selected" size="1">
-            <option value=$option1> $identity </option>
-            <option value=$option2> $alternate_identity </option>
+            $option
           </select>
       </td>
       <td>
@@ -182,12 +183,12 @@ class flight {
 
   public function show( $is_admin, $ordered_by="id", $ordered_how="ASC" ) {
     #show all records
-    #var_dump(  $ordered_by );
-    #var_dump(  $ordered_how );
-    $query = "SELECT * FROM Flight ORDER BY ? ?";
+    #$ordered_by = $this->db->quote($ordered_by);
+    #$ordered_how = $this->db->quote($ordered_how);
+    $query = "SELECT * FROM Flight ORDER BY $ordered_by $ordered_how";
+    #var_dump( $query );
     $sth = $this->db->prepare($query);
-    $sth->execute(array($ordered_by, $ordered_how));
-    $sth->setFetchMode( PDO::FETCH_ASSOC );
+    $sth->execute();
     echo "<table border=\"5\">
       <tr> <th> Flight Number </th> <th> Departure </th>
       <th> Destination </th>        <th> Departure Date </th> 
@@ -196,7 +197,7 @@ class flight {
       echo "<th> Action </th> </tr>";
     }
     
-    while( $row = $sth->fetch() ) {
+    while( $row = $sth->fetch( PDO::FETCH_ASSOC ) ) {
       if( $is_admin == true ) {
         echo <<<_HTML
   <form method="post" >
@@ -209,8 +210,8 @@ class flight {
       <td> <input type="text" name="arrival_date" value=$row[arrival_date]> </td>
       <td> <input type="text" name="arrival_date" value=$row[price]> </td>
       <td> <button name="command" type="submit" value="UPDATE_FLIGHT"> Update </button>
-           <button name="command" type="submit" value="DELETE_FLIGHT"> Delete </button> </td>
-    </tr>
+           <button name="command" type="submit" value="ADD_FAVORITE"> ADD TO FAVORITE </button>
+           <button name="command" type="submit" value="DELETE_FLIGHT"> Delete </button> </td> </tr>
   </form>
 _HTML;
       } else {
@@ -230,6 +231,69 @@ _HTML;
     $query = "ALTER TABLE Flight AUTO_INCREMENT=1";
     $sth = $this->db->prepare($query);
     $sth->execute();
+  }
+}
+
+class favorite{
+  private $db;
+  public function __construct($hostAndDb, $username, $password) {
+    try {
+      $this->db = new PDO( $hostAndDb, $username, $password, array(PDO::ATTR_PERSISTENT => true) );
+      $this->db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+    } catch( PDOException $e ) {
+      print "Error in flightmod__constructor(): " . $e->getMessage() . "<br/>";
+      die();
+    }
+  }
+
+  public function add($uid, $fid) {
+    try {
+      $query = "INSERT into Favorite VALUES (?, ?)";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($uid, $fid) );
+      return true;
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+
+  public function erase( $uid, $fid ) {
+    try {
+      $query = "DELETE FROM Favorite WHERE user_id=$uid AND flight_id=$fid";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($uid, $fid) );
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+  
+  public function show( $uid, $ordered_by="id", $ordered_how="ASC" ) {
+    #show all records
+    $query = "SELECT * FROM Flight WHERE id IN
+      (SELECT flight_id as id FROM Favorite WHERE user_id = ? )
+      ORDER BY $ordered_by $ordered_how";
+    $sth = $this->db->prepare($query);
+    $sth->execute( array($uid) );
+    echo "<table border=\"5\">
+      <tr> <th> Flight Number </th> <th> Departure </th>
+      <th> Destination </th>        <th> Departure Date </th> 
+      <th> Arrival Date </th>       <th> Price </th>
+      <th> Action </th> </tr>";
+    
+    while( $row = $sth->fetch( PDO::FETCH_ASSOC ) ) {
+      echo <<<_HTML
+  <form method="post" >
+    <input type="hidden" name="flight_id" value=$row[id]>
+    <tr>
+      <td> $row[flight_number] </td> <td> $row[departure] </td>
+      <td> $row[destination] </td>   <td> $row[departure_date] </td>
+      <td> $row[arrival_date] </td>  <td> $row[price] </td>
+      <td> <button name="command" type="submit" value="DELETE_FAVORITE"> Delete </button> </td>
+    </tr>
+  </form>
+_HTML;
+    }
+    echo "</table>";
   }
 }
 

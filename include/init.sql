@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS Interested;
+DROP TABLE IF EXISTS Favorite;
 DROP TABLE IF EXISTS Airport;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS Flight; 
@@ -44,16 +44,20 @@ INSERT INTO User VALUES ( 1, 'schwannden', md5('0016205'), true ),
                         ( 3, 'guest'     , md5('guest')  , false);
 
 
-CREATE TABLE Interested
+CREATE TABLE Favorite
 (
   user_id   INT UNSIGNED NOT NULL,
   flight_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY( user_id, flight_id ),
   FOREIGN KEY (user_id)   REFERENCES User(id)   ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (flight_id) REFERENCES Flight(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
-INSERT INTO Interested VALUES (1, 1),
-                              (1, 2),
-                              (2, 3),
-                              (2, 4);
+INSERT INTO Favorite VALUES (1, 1),
+                            (1, 2),
+                            (1, 3),
+                            (1, 4),
+                            (1, 5),
+                            (2, 3),
+                            (2, 4);
 
 SET FOREIGN_KEY_CHECKS=1;

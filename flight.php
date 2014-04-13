@@ -14,8 +14,9 @@
 require_once 'include/login.php';
 require_once 'include/lib.php';
 echo "<h2> Welcome $_SESSION[username] </h2>";
-$flight  = new flight(  $hostAndDb, $username, $password );
-$airport = new airport( $hostAndDb, $username, $password );
+$flight   = new flight(   $hostAndDb, $username, $password );
+$airport  = new airport(  $hostAndDb, $username, $password );
+
 if( $_SESSION[is_admin] == true ) {
   echo "<br> <h2> Manage Flight </h2>";
   #admin issued a command
@@ -58,6 +59,18 @@ if( $_SESSION[is_admin] == true ) {
 _HTML;
 }
 
+if( isset( $_POST[command] ) and $_POST[command] == "ADD_FAVORITE" ) {
+  $db = setupdb();
+  $query = "SELECT id FROM User Where account=?";
+  $sth = $db->prepare( $query );
+  $sth->execute( array($_SESSION[username]) );
+  $user_id = $sth->fetch()[id];
+  $flight_id = $_POST[id];
+  $favorite = new favorite( $hostAndDb, $username, $password );
+  $favorite->add( $user_id, $flight_id );
+}
+
+#sorted by comand
 echo <<<_HTML
   <pre>
     Sorted by <form action="flight.php" method="post">
@@ -75,6 +88,7 @@ echo <<<_HTML
     </form>
   </pre>
 _HTML;
+
 if( isset( $_POST[command] ) and $_POST[command] == "CHANGE_ORDER" )
   $flight->show($_SESSION[is_admin], $_POST[ordered_by], $_POST[ordered_how]);
 else
