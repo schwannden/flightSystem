@@ -104,6 +104,25 @@ _HTML;
     echo "</table>";
   }
 
+  public function exist( $username ) {
+    try {
+      $query = "SELECT * FROM User WHERE account=?";
+      $sth = $this->db->prepare($query);
+      $sth->execute(array($username));
+      $sth->setFetchMode( PDO::FETCH_ASSOC );
+ 
+      if( $row = $sth->fetch() ) {  
+        return true;
+      } else {
+        return false;
+      }
+    } catch( PDOException $e ) {
+      print "Error!: " . $e->getMessage() . "<br/>";
+      die();
+    }
+    return true;
+  }
+
   private function reset_auto_increment() {
     $query = "ALTER TABLE User AUTO_INCREMENT=1";
     $sth = $this->db->prepare($query);
@@ -145,14 +164,14 @@ class flight {
     }
   }
 
-  public function add($flight_number, $departure, $destination, $departure_date, $arrival_date) {
+  public function add($flight_number, $departure, $destination, $departure_date, $arrival_date, $price) {
     try {
       $this->reset_auto_increment();
       $query = "INSERT into Flight 
-        (flight_number, departure, destination, departure_date, arrival_date) 
-        VALUES (?, ?, ?, ?, ?)";
+        (flight_number, departure, destination, departure_date, arrival_date, price) 
+        VALUES (?, ?, ?, ?, ?, ?)";
       $sth = $this->db->prepare($query);
-      $sth->execute( array($flight_number, $departure, $destination, $departure_date, $arrival_date) );
+      $sth->execute( array($flight_number, $departure, $destination, $departure_date, $arrival_date, $price) );
       return true;
     } catch( PDOException $e ) {
       print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
@@ -169,33 +188,27 @@ class flight {
     }
   }
   
-  public function update( $id, $flight_number, $departure, $destination, $departure_date, $arrival_date ) {
+  public function update( $id, $flight_number, $departure, $destination, $departure_date, $arrival_date, $price ) {
     try{
       $query = "UPDATE Flight SET 
         flight_number=?, departure=?, destination=?, 
-        departure_date=?, arrival_date = ? WHERE id=?";
+        departure_date=?, arrival_date=?, price=? WHERE id=?";
       $sth = $this->db->prepare($query);
-      $sth->execute( array($flight_number, $departure, $destination, $departure_date, $arrival_date, $id) );
+      $sth->execute( array($flight_number, $departure, $destination, $departure_date, $arrival_date, $price, $id) );
     } catch( PDOException $e ) {
       print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
     }
   }
 
-  public function show( $is_admin, $ordered_by="id", $ordered_how="ASC" ) {
-    #show all records
-    #$ordered_by = $this->db->quote($ordered_by);
-    #$ordered_how = $this->db->quote($ordered_how);
-    $query = "SELECT * FROM Flight ORDER BY $ordered_by $ordered_how";
-    #var_dump( $query );
+  public function show( $is_admin, $pred=true, $ordered_by="id", $ordered_how="ASC" ) {
+    $query = "SELECT * FROM Flight WHERE $pred ORDER BY $ordered_by $ordered_how";
     $sth = $this->db->prepare($query);
-    $sth->execute();
+    $sth->execute(array());
     echo "<table border=\"5\">
       <tr> <th> Flight Number </th> <th> Departure </th>
       <th> Destination </th>        <th> Departure Date </th> 
-      <th> Arrival Date </th>       <th> Price </th>";
-    if( $is_admin ) {
-      echo "<th> Action </th> </tr>";
-    }
+      <th> Arrival Date </th>       <th> Price </th>
+      <th> Action </th> </tr>";
     
     while( $row = $sth->fetch( PDO::FETCH_ASSOC ) ) {
       if( $is_admin == true ) {
@@ -203,12 +216,12 @@ class flight {
   <form method="post" >
     <input type="hidden" name="id" value=$row[id]>
     <tr>
-      <td> <input type="text" name="flight_number" value=$row[flight_number]> </td>
-      <td> <input type="text" name="departure" value=$row[departure]> </td>
-      <td> <input type="text" name="destination" value=$row[destination]> </td>
-      <td> <input type="text" name="departure_date" value=$row[departure_date]> </td>
-      <td> <input type="text" name="arrival_date" value=$row[arrival_date]> </td>
-      <td> <input type="text" name="arrival_date" value=$row[price]> </td>
+      <td> <input type="text" name="flight_number" value="$row[flight_number]"> </td>
+      <td> <input type="text" name="departure" value="$row[departure]"> </td>
+      <td> <input type="text" name="destination" value="$row[destination]"> </td>
+      <td> <input type="text" name="departure_date" value="$row[departure_date]"> </td>
+      <td> <input type="text" name="arrival_date" value="$row[arrival_date]"> </td>
+      <td> <input type="text" name="price" value="$row[price]"> </td>
       <td> <button name="command" type="submit" value="UPDATE_FLIGHT"> Update </button>
            <button name="command" type="submit" value="ADD_FAVORITE"> ADD TO FAVORITE </button>
            <button name="command" type="submit" value="DELETE_FLIGHT"> Delete </button> </td> </tr>
@@ -220,6 +233,10 @@ _HTML;
     <td> $row[flight_number] </td> <td> $row[departure] </td>
     <td> $row[destination] </td>   <td> $row[departure_date] </td>
     <td> $row[arrival_date] </td>  <td> $row[price] </td>
+    <form method="post" >
+    <input type="hidden" name="id" value=$row[id]>
+    <td> <button name="command" type="submit" value="ADD_FAVORITE"> ADD TO FAVORITE </button> </td>
+    </form>
   </tr>
 _HTML;
       }
@@ -296,7 +313,6 @@ _HTML;
     echo "</table>";
   }
 }
-
 
 class airport {
   private $db;

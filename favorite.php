@@ -1,27 +1,27 @@
 <?php
-  session_start();
-  if( !isset($_SESSION[username]) )
-    die();
-?>
-<!DOCTYPE html>
-<html>
-<head>
-  <title> "Flights" </title>
-</head>
-
-<body>
-
-<?php
 require_once 'include/login.php';
 require_once 'include/lib.php';
+session_start();
+$user     = new user( $hostAndDb, $username, $password );
+$favorite = new favorite( $hostAndDb, $username, $password );
+if(  $user->exist($_SESSION[username]) ) {
+  echo <<<_HTML
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title> "Favorite" </title>
+    </head>
+    <body>
+    <h2> Welcome $_SESSION[username] </h2>
+_HTML;
+} else {
+  header("location: index.html");
+}
 $db = setupdb();
 $query = "SELECT id FROM User Where account=?";
 $sth = $db->prepare( $query );
 $sth->execute( array($_SESSION[username]) );
 $user_id = $sth->fetch()[id];
-
-$favorite = new favorite( $hostAndDb, $username, $password );
-print_r($_POST);
 
 #sorted by comand
 echo <<<_HTML
