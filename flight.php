@@ -68,10 +68,10 @@ if( isset( $_POST[command] ) and $_POST[command] == "ADD_FAVORITE" ) {
   $query = "SELECT id FROM User Where account=?";
   $sth = $db->prepare( $query );
   $sth->execute( array($_SESSION[username]) );
-  $user_id = $sth->fetch()[id];
+  $user_id = $sth->fetch();
   $flight_id = $_POST[id];
   $favorite = new favorite( $hostAndDb, $username, $password );
-  $favorite->add( $user_id, $flight_id );
+  $favorite->add( $user_id[id], $flight_id );
 }
 #user issued a sort comand
 if( isset( $_POST[command] ) ) {

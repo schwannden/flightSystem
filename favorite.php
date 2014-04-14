@@ -21,7 +21,7 @@ $db = setupdb();
 $query = "SELECT id FROM User Where account=?";
 $sth = $db->prepare( $query );
 $sth->execute( array($_SESSION[username]) );
-$user_id = $sth->fetch()[id];
+$user_id = $sth->fetch();
 
 #sorted by comand
 echo <<<_HTML
@@ -45,18 +45,18 @@ _HTML;
 if( isset( $_POST[command] ) ) {
   switch( $_POST[command] ) {
     case "CHANGE_ORDER":
-      $favorite->show($user_id, $_POST[ordered_by], $_POST[ordered_how]);
+      $favorite->show($user_id[id], $_POST[ordered_by], $_POST[ordered_how]);
       break;
     case "DELETE_FAVORITE":
-      $favorite->erase( $user_id, $_POST[flight_id] );
-      $favorite->show($user_id);
+      $favorite->erase( $user_id[id], $_POST[flight_id] );
+      $favorite->show($user_id[id]);
       break;
     default:
-      $favorite->show($user_id);
+      $favorite->show($user_id[id]);
       break;
   }
 } else {
-  $favorite->show($user_id);
+  $favorite->show($user_id[id]);
 }
 
 ?>
