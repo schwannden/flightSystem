@@ -204,7 +204,7 @@ class flight {
     $query = "SELECT * FROM Flight WHERE $pred ORDER BY $ordered_by $ordered_how";
     $sth = $this->db->prepare($query);
     $sth->execute(array());
-    echo "<table border=\"5\">
+    echo "<table id=\"flight_table\" border=\"5\">
       <tr> <th> Flight Number </th> <th> Departure </th>
       <th> Destination </th>        <th> Departure Date </th> 
       <th> Arrival Date </th>       <th> Price </th>
@@ -326,34 +326,36 @@ class airport {
     }
   }
 
-  public function add($name, $longitude, $latitude) {
+  public function add($code, $name, $country, $longitude, $latitude) {
     try {
-      $query = "INSERT into Airport VALUES (?, ?, ?)";
+      $query = "INSERT into Airport VALUES (?, ?, ?, ?, ?)";
+      echo "INSERT into Airport VALUES ($code, $name, $country, $longitude, $latitude)";
       $sth = $this->db->prepare($query);
-      $sth->execute( array($name, $longitude, $latitude) );
+      $sth->execute( array($code, $name, $country, $longitude, $latitude) );
       return true;
     } catch( PDOException $e ) {
       print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
     }
   }
 
-  public function erase( $name ) {
+  public function erase( $code ) {
     try {
-      $query = "DELETE FROM Airport WHERE name=?";
+      $query = "DELETE FROM Airport WHERE code=?";
       $sth = $this->db->prepare($query);
-      $sth->execute( array($name) );
+      $sth->execute( array($code) );
     } catch( PDOException $e ) {
       print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
     }
   }
   
-  public function update($name, $longitude, $latitude) {
+  public function update($code, $longitude, $latitude) {
     try{
       $query = "UPDATE Airport SET 
         longitude=?, latitude=? 
-        WHERE name=?";
+        WHERE code=?";
+      echo "UPDATE Airport SET longitude=$longitude latitude=$latitude  WHERE code=$code";
       $sth = $this->db->prepare($query);
-      $sth->execute( array($longitude, $latitude, $name) );
+      $sth->execute( array($longitude, $latitude, $code) );
     } catch( PDOException $e ) {
       print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
     }
@@ -361,19 +363,24 @@ class airport {
 
   public function show() {
     #show all records
-    $query = "SELECT * FROM Airport";
+    $query = "SELECT
+      Airport.code, Airport.name as aname, country, longitude, latitude, Country.name as cname
+      FROM Airport, Country where Airport.country = Country.code";
     $sth = $this->db->prepare($query);
     $sth->execute();
     $sth->setFetchMode( PDO::FETCH_ASSOC );
     echo "<table border=\"5\">
-      <tr> <th> Airport Name </th>  <th> Position </th> <th> Action </th> </tr>";
+      <tr> <th> Airport </th> <th> IATA Code </th> <th> Country </th> <th> longitude </th> <th> latitude </th> <th> Action </th> </tr>";
 
     while( $row = $sth->fetch() ) {
+      //print_r( $row );
       echo <<<_HTML
   <form method="post" >
-           <input type="hidden" name="name" value=$row[name]>
+           <input type="hidden" name="code" value=$row[code]>
     <tr>
-      <td> $row[name] </td>
+      <td> $row[aname] </td>
+      <td> $row[code] </td>
+      <td> $row[cname] </td>
       <td> <input type="text" name="longitude"  value=$row[longitude]>                  </td>
       <td> <input type="text" name="latitude"   value=$row[latitude]>                   </td>
       <td> <button name="command" type="submit" value="UPDATE_AIRPORT"> Update </button>
