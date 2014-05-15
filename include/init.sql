@@ -4,35 +4,36 @@ DROP TABLE IF EXISTS Flight;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS Favorite;
 DROP TABLE IF EXISTS Country; 
+DROP VIEW  IF EXISTS Airport_zone; 
 
--- Table structure for table `Airport`
+-- Table structure for table `Country`
 CREATE TABLE Country (
-  code     char(3)  NOT NULL PRIMARY KEY,
-  name     char(64) NOT NULL,
-  timezone INT      NOT NULL
+  code     CHAR(3)  NOT NULL PRIMARY KEY,
+  name     CHAR(64) NOT NULL,
+  timezone TIME     NOT NULL
 ) ENGINE=InnoDB;
 -- Dumping data for table `Country`
 -- ORDER BY:  `Code`
-INSERT INTO `Country` VALUES ('AFG','Afghanistan',    4.5);
-INSERT INTO `Country` VALUES ('BEL','Belgium',        2);
-INSERT INTO `Country` VALUES ('BRA','Brazil',         -3);
-INSERT INTO `Country` VALUES ('CAN','Canada',         -7);
-INSERT INTO `Country` VALUES ('CHE','Switzerland',    2);
-INSERT INTO `Country` VALUES ('DNK','Denmark',        2);
-INSERT INTO `Country` VALUES ('ECU','Ecuador',        -5);
-INSERT INTO `Country` VALUES ('ESP','Spain',          2);
-INSERT INTO `Country` VALUES ('FIN','Finland',        3);
-INSERT INTO `Country` VALUES ('FRO','Faroe Islands',  1);
-INSERT INTO `Country` VALUES ('GBR','United Kingdom', 1);
-INSERT INTO `Country` VALUES ('IND','India',          5.5);
-INSERT INTO `Country` VALUES ('JPN','Japan',          9);
-INSERT INTO `Country` VALUES ('MYS','Malaysia',       8);
-INSERT INTO `Country` VALUES ('NOR','Norway',         2);
-INSERT INTO `Country` VALUES ('NZL','New Zealand',    12);
-INSERT INTO `Country` VALUES ('THA','Thailand',       7);
-INSERT INTO `Country` VALUES ('TWN','Taiwan',         8);
-INSERT INTO `Country` VALUES ('UKR','Ukraine',        3);
-INSERT INTO `Country` VALUES ('USA','United States',  -5);
+INSERT INTO `Country` VALUES ('AFG','Afghanistan',    '4:30' );
+INSERT INTO `Country` VALUES ('BEL','Belgium',        '2:00' );
+INSERT INTO `Country` VALUES ('BRA','Brazil',         '-3:00');
+INSERT INTO `Country` VALUES ('CAN','Canada',         '-7:00');
+INSERT INTO `Country` VALUES ('CHE','Switzerland',    '2:00' );
+INSERT INTO `Country` VALUES ('DNK','Denmark',        '2:00' );
+INSERT INTO `Country` VALUES ('ECU','Ecuador',        '-5:00');
+INSERT INTO `Country` VALUES ('ESP','Spain',          '2:00' );
+INSERT INTO `Country` VALUES ('FIN','Finland',        '3:00' );
+INSERT INTO `Country` VALUES ('FRO','Faroe Islands',  '1:00' );
+INSERT INTO `Country` VALUES ('GBR','United Kingdom', '1:00' );
+INSERT INTO `Country` VALUES ('IND','India',          '5:30' );
+INSERT INTO `Country` VALUES ('JPN','Japan',          '9:00' );
+INSERT INTO `Country` VALUES ('MYS','Malaysia',       '8:00' );
+INSERT INTO `Country` VALUES ('NOR','Norway',         '2:00' );
+INSERT INTO `Country` VALUES ('NZL','New Zealand',    '12:00');
+INSERT INTO `Country` VALUES ('THA','Thailand',       '7:00' );
+INSERT INTO `Country` VALUES ('TWN','Taiwan',         '8:00' );
+INSERT INTO `Country` VALUES ('UKR','Ukraine',        '3:00' );
+INSERT INTO `Country` VALUES ('USA','United States',  '-5:00');
 
 -- Table structure for table `Airport`
 CREATE TABLE Airport (
@@ -81,12 +82,33 @@ CREATE TABLE Flight
 ) ENGINE = InnoDB;
 -- Dumping data for table `Flight`
 -- ORDER BY:  `id`
-INSERT INTO Flight VALUES ( 1, 'SA311', 'TPE', 'DSM', '2014-03-02 12:00', '2014-03-03 16:00', 10000 ),
-                          ( 2, 'SA312', 'TPE', 'MMJ', '2014-03-02 13:00', '2014-03-02 17:00', 10001 ),
-                          ( 3, 'SA313', 'MMJ', 'DSM', '2014-03-02 14:00', '2014-03-02 18:00', 10002 ),
-                          ( 4, 'SA312', 'TPE', 'MMJ', '2014-03-02 13:00', '2014-03-02 17:00', 10001 ),
-                          ( 5, 'SA312', 'MMJ', 'PTZ', '2014-03-02 13:00', '2014-03-02 17:00', 10001 ),
-                          ( 6, 'SA312', 'PTZ', 'DSM', '2014-03-02 13:00', '2014-03-02 17:00', 10001 );
+INSERT INTO Flight VALUES
+  ( 1, 'SA311', 'TPE', 'DSM', '2014-03-02 10:00', '2014-03-02 17:00', 2000 ),
+  ( 2, 'SA312', 'TPE', 'MMJ', '2014-03-02 16:00', '2014-03-02 19:00', 500  ),
+  ( 3, 'SA313', 'MMJ', 'DSM', '2014-03-02 22:00', '2014-03-03 04:00', 1500 ),
+  ( 4, 'SA310', 'MMJ', 'PTZ', '2014-03-02 22:00', '2014-03-03 04:00', 1000 ),
+  ( 5, 'SA309', 'PTZ', 'DSM', '2014-03-03 07:00', '2014-03-03 09:00', 500  ),
+  ( 6, 'SB313', 'MMJ', 'DSM', '2014-03-02 20:00', '2014-03-03 02:00', 1500 ),
+  ( 7, 'SB310', 'MMJ', 'PTZ', '2014-03-02 20:00', '2014-03-03 02:00', 1000 ),
+  ( 8, 'SB309', 'PTZ', 'DSM', '2014-03-03 05:00', '2014-03-03 06:00', 500  );
+  
+  --   'SA311'
+  --TPE 20hr DSM
+  --
+  --   'SA312'              'SA313'
+  --TPE 2hr  MMJ | 3hr | MMJ 20hr DSM
+  --
+  --   'SA312'              'SA310'              'SA309'
+  --TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 3hr | PTZ 2hr DSM
+  --
+  --   'SA312'              'SB313'
+  --TPE 2hr  MMJ | 1hr | MMJ 20hr DSM
+  --
+  --   'SA312'              'SB310'              'SA309'
+  --TPE 2hr  MMJ | 1hr | MMJ 18hr PTZ | 5hr | PTZ 2hr DSM
+  --
+  --   'SA312'              'SA310'              'SB309'
+  --TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 1hr | PTZ 2hr DSM
 
 -- Table structure for table `User`
 CREATE TABLE User
@@ -120,5 +142,11 @@ INSERT INTO Favorite VALUES (1, 1),
                             (1, 5),
                             (2, 3),
                             (2, 4);
+ 
+-- View structure for table `Favorite`
+CREATE VIEW Airport_zone AS
+SELECT Airport.code, Country.timezone
+FROM Airport, Country
+WHERE Airport.country = Country.code;
 
 SET FOREIGN_KEY_CHECKS=1;

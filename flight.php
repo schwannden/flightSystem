@@ -2,10 +2,11 @@
 require_once 'include/login.php';
 require_once 'include/lib.php';
 session_start();
-$flight  = new flight(  $hostAndDb, $username, $password );
-$airport = new airport(    $hostAndDb, $username, $password );
 $user    = new user( $hostAndDb, $username, $password );
-//validate user
+$flight  = new flight( $hostAndDb, $username, $password );
+$airport = new airport( $hostAndDb, $username, $password );
+$country = new country( $hostAndDb, $username, $password );
+#validate user: Print welcome message or redirect to login
 if(  $user->exist($_SESSION[username]) ) {
   echo <<<_HTML
     <!DOCTYPE html>
@@ -42,8 +43,16 @@ if( $_SESSION[is_admin] == true ) {
         $airport->add( $_POST[code], $_POST[name], $_POST[country], $_POST[longitude], $_POST[latitude]);
         break; 
       case "UPDATE_AIRPORT":
-        //echo "$_POST[name] $_POST[longitude] $_POST[latitude]";
         $airport->update( $_POST[code], $_POST[longitude], $_POST[latitude] );
+        break; 
+      case "DELETE_COUNTRY":
+        $country->erase( $_POST[code] );
+        break; 
+      case "ADD_COUNTRY":
+        $country->add( $_POST[code], $_POST[name], $_POST[timezone] );
+        break; 
+      case "UPDATE_COUNTRY":
+        $country->update( $_POST[code_old], $_POST[code], $_POST[name], $_POST[timezone] );
         break; 
     }
   }
@@ -79,23 +88,30 @@ if( isset( $_POST[command] ) )
   {
     $flight->show($_SESSION[is_admin], "$_POST[column_name] = '$_POST[column_value]'");
   }
+  else if( $_POST[command] == "SEARCH_AIRLINE" )
+  {
+    $flight->show_airline( $_POST[departure], $_POST[destination],
+      $_POST[maximum_transition], $_POST[ordered_by], $_POST[ordered_how] );
+  }
   else
   {
     $flight->show($_SESSION[is_admin]);
   } 
 }
-else
+else #show all flight
 {
   $flight->show($_SESSION[is_admin]);
 }
 
+#refresh the page
 echo <<<_HTML
   <form method="post">
     <button name="command" type="submit" value="REFRESH"> Refresh </button>
   </form>
 _HTML;
 #a select manu for user to issue sort. Sort command is finished by javascript
-echo <<<_HTML
+if( $_POST[command] != 'SEARCH_AIRLINE' ) {
+  echo <<<_HTML
       <p>Sorted by</p>
       <select id="ordered_by" name="ordered_by" selected="selected" size="1">
         <option value="flight_number">  Flight Number  </option>
@@ -107,8 +123,9 @@ echo <<<_HTML
       </select> <select id="ordered_how" name="ordered_how" selected="selected" size="1">
         <option value="ASC">  Increasing </option>
         <option value="DESC"> Decreasing </option>
-      </select> <button onclick="reorderFlight()" > APPLY </button>
 _HTML;
+  echo "</select> <button onclick=\"reorderFlight($_SESSION[is_admin])\" > APPLY </button>";
+}
 #a form for user to issue search
 echo <<<_HTML
     <form action method="post">
@@ -125,6 +142,19 @@ echo <<<_HTML
       <input type="text" name="column_value">
       <button name="command" type="submit" value="SEARCH_FLIGHT"> SEARCH </button>
     </form>
+    <form action method="post">
+      <input type="hidden" name="ordered_by" value="price">
+      <p>Search Airline:</p> <br>
+      Departure Airport   <input type="text" name="departure"> ->
+      Destination Airport <input type="text" name="destination">
+      <p>Maximum Transition allowed:
+      <select name="maximum_transition" selected="selected" size="1">
+        <option value="0"> 0 </option>
+        <option value="1"> 1 </option>
+        <option value="2"> 2 </option>
+      </select>
+      <button name="command" type="submit" value="SEARCH_AIRLINE"> SEARCH </button>
+    </form>
 _HTML;
 #a form for administrator to edit, add airport
 if( $_SESSION[is_admin] ) {
@@ -136,13 +166,29 @@ if( $_SESSION[is_admin] ) {
      IATA code: <input type="text" name="code"      value="XYZ">
           name: <input type="text" name="name"      value="some airport">
        Country: <input type="text" name="country"   value="fairyLand">
-     longitude: <input type="text" name="longitude" value="xx.xxxxx">
-      latitude: <input type="text" name="latitude"  value="xx.xxxxx">
+     longitude: <input type="text" name="longitude" value="12.34567">
+      latitude: <input type="text" name="latitude"  value="12.34567">
     <button name="command" type="submit" value="ADD_AIRPORT"> ADD AIRPORT </button> </form>
   </pre>
 _HTML;
   $airport->show();
 }
+#a form for administrator to edit, add Country
+if( $_SESSION[is_admin] ) {
+  echo "<br> <h2> Manage Country </h2>";
+  #a form for admin to add country record
+  echo <<<_HTML
+  <pre>
+    <form action="flight.php" method="post">
+          code: <input type="text" name="code"      value="XYZ">
+          name: <input type="text" name="name"      value="some country">
+      timezone: <input type="text" name="timezone"  value="00:00:00">
+    <button name="command" type="submit" value="ADD_Country"> ADD COUNTRY </button> </form>
+  </pre>
+_HTML;
+  $country->show();
+}
+
 ?>
 <br>
 <a href="home.php" target="_self"> Home </a> <br>
@@ -152,10 +198,10 @@ _HTML;
 
 <script type="text/javascript", src="include/lib.js"> </script>
 <script type="text/javascript">
-  function reorderFlight()
+  function reorderFlight( is_admin )
   {
     var term;
-    flight_table = tableToArray( 'flight_table' );
+    flight_table = tableToArray( 'flight_table', is_admin );
     switch( $('ordered_by').value )
     {
       case "flight_number" : term = 0; break;
@@ -165,14 +211,11 @@ _HTML;
       case "arrival_date"  : term = 4; break;
       case "price"         : term = 5; break;
     }
-    if( $('ordered_how').value == "ASC" )
+    switch( $('ordered_how').value )
     {
-      flight_table.sort( function(a,b) { return a[term] > b[term] } );
+      case 'ASC': flight_table.sort( function(a,b) { return a[term] > b[term] } ); break;
+      case 'DESC': flight_table.sort( function(a,b) { return a[term] < b[term] } ); break;
     }
-    else
-    {
-      flight_table.sort( function(a,b) { return a[term] < b[term] } );
-    }
-    arrayToTable( flight_table, 'flight_table' );
+    arrayToTable( flight_table, 'flight_table', is_admin );
   }
 </script>

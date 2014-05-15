@@ -1,5 +1,6 @@
 <?php
 require_once 'login.php';
+require_once 'find_airline.php';
 
 function sanitize( $string ) {
   if( get_magic_quotes_gpc() ) $string = stripslashes( $string );
@@ -203,7 +204,7 @@ class flight {
   public function show( $is_admin, $pred=true, $ordered_by="id", $ordered_how="ASC" ) {
     $query = "SELECT * FROM Flight WHERE $pred ORDER BY $ordered_by $ordered_how";
     $sth = $this->db->prepare($query);
-    $sth->execute(array());
+    $sth->execute();
     echo "<table id=\"flight_table\" border=\"5\">
       <tr> <th> Flight Number </th> <th> Departure </th>
       <th> Destination </th>        <th> Departure Date </th> 
@@ -242,6 +243,91 @@ _HTML;
       }
     }
     echo "</table>";
+  }
+
+  public function show_airline( $destination, $departure, $maximum_transition, $ordered_by, $ordered_how ) {
+    try{
+      $query = find_airline( $destination, $departure, $ordered_by, $ordered_how );
+      $sth = $this->db->prepare($query);
+      $sth->execute();
+      echo <<<_HTML
+        <table id="airline_table" border="5">
+        <tr> <th> Total Transition </th> <th> Flight(s) </th>
+        <th> Departure Date
+          <form method="post" >
+            <input type="hidden" name="maximum_transition" value=$_POST[maximum_transition]>
+            <input type="hidden" name="departure"   value=$_POST[departure]>
+            <input type="hidden" name="destination" value=$_POST[destination]>
+            <input type="hidden" name="ordered_by"  value="departure_date">
+            <input type="hidden" name="ordered_how" value="DESC">
+            <button name="command" type="submit" value="SEARCH_AIRLINE"> v </button>
+          </form>
+          <form method="post" >
+            <input type="hidden" name="maximum_transition" value=$_POST[maximum_transition]>
+            <input type="hidden" name="departure"   value=$_POST[departure]>
+            <input type="hidden" name="destination" value=$_POST[destination]>
+            <input type="hidden" name="ordered_by"  value="departure_date">
+            <input type="hidden" name="ordered_how" value="ASC">
+            <button name="command" type="submit" value="SEARCH_AIRLINE"> ^ </button>
+          </form>
+        </th>
+        <th> Arrival Date
+          <form method="post" >
+            <input type="hidden" name="maximum_transition" value=$_POST[maximum_transition]>
+            <input type="hidden" name="departure"   value=$_POST[departure]>
+            <input type="hidden" name="destination" value=$_POST[destination]>
+            <input type="hidden" name="ordered_by"  value="arrival_date">
+            <input type="hidden" name="ordered_how" value="DESC">
+            <button name="command" type="submit" value="SEARCH_AIRLINE"> v </button>
+          </form>
+          <form method="post" >
+            <input type="hidden" name="maximum_transition" value=$_POST[maximum_transition]>
+            <input type="hidden" name="departure"   value=$_POST[departure]>
+            <input type="hidden" name="destination" value=$_POST[destination]>
+            <input type="hidden" name="ordered_by"  value="arrival_date">
+            <input type="hidden" name="ordered_how" value="ASC">
+            <button name="command" type="submit" value="SEARCH_AIRLINE"> ^ </button>
+          </form>
+        </th> 
+        <th> Total Flight Time </th>     <th> Total Transition Time </th> 
+        <th> Price
+          <form method="post" >
+            <input type="hidden" name="maximum_transition" value=$_POST[maximum_transition]>
+            <input type="hidden" name="departure"   value=$_POST[departure]>
+            <input type="hidden" name="destination" value=$_POST[destination]>
+            <input type="hidden" name="ordered_by"  value="price">
+            <input type="hidden" name="ordered_how" value="DESC">
+            <button name="command" type="submit" value="SEARCH_AIRLINE"> v </button>
+          </form>
+          <form method="post" >
+            <input type="hidden" name="maximum_transition" value=$_POST[maximum_transition]>
+            <input type="hidden" name="departure"   value=$_POST[departure]>
+            <input type="hidden" name="destination" value=$_POST[destination]>
+            <input type="hidden" name="ordered_by"  value="price">
+            <input type="hidden" name="ordered_how" value="ASC">
+            <button name="command" type="submit" value="SEARCH_AIRLINE"> ^ </button>
+          </form>
+        </th>
+_HTML;
+      while( ($row = $sth->fetch( PDO::FETCH_ASSOC )) and $row[transition] <= $maximum_transition ) {
+        $flights = $row[first_flight] . "( $row[s1] -> $row[s2] )";
+        if( $row[first_flight] != $row[second_flight] )
+          $flights = $flights . "<br>" . $row[second_flight] . "( $row[s2] -> $row[s3] )";
+        if( $row[second_flight] != $row[third_flight] )
+          $flights = $flights . "<br>" . $row[third_flight] . "( $row[s3] -> $row[s4] )";
+      echo <<<_HTML
+  <tr>
+    <td> $row[transition] </td>  <td> $flights </td>
+    <td> $row[departure_date] </td>  <td> $row[arrival_date] </td>
+    <td> $row[flight_time] </td> <td> $row[transition_time] </td>
+    <td> $row[price] </td>
+  </tr>
+_HTML;
+      }
+      echo "</table>";
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
   }
 
   public function reset_auto_increment() {
@@ -329,7 +415,6 @@ class airport {
   public function add($code, $name, $country, $longitude, $latitude) {
     try {
       $query = "INSERT into Airport VALUES (?, ?, ?, ?, ?)";
-      echo "INSERT into Airport VALUES ($code, $name, $country, $longitude, $latitude)";
       $sth = $this->db->prepare($query);
       $sth->execute( array($code, $name, $country, $longitude, $latitude) );
       return true;
@@ -392,3 +477,80 @@ _HTML;
     echo "</table>";
   }
 }
+
+class country {
+  private $db;
+  public function __construct($hostAndDb, $username, $password) {
+    try {
+      $this->db = new PDO( $hostAndDb, $username, $password, array(PDO::ATTR_PERSISTENT => true) );
+      $this->db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+    } catch( PDOException $e ) {
+      print "Error in airport__constructor(): " . $e->getMessage() . "<br/>";
+      die();
+    }
+  }
+
+  public function add($code, $name, $timezone) {
+    try {
+      $query = "INSERT into Country VALUES (?, ?, ?)";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($code, $name, $timezone) );
+      return true;
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+
+  public function erase( $code ) {
+    try {
+      $query = "DELETE FROM Country WHERE code=?";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($code) );
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+  
+  public function update($code_old, $code_new, $name, $timezone) {
+    try{
+      $query = "UPDATE Country SET 
+        code=?, name=?, timezone=?
+        WHERE code=?";
+      $sth = $this->db->prepare($query);
+      $sth->execute( array($code_new, $name, $timezone, $code_old) );
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+
+  public function show() {
+    try{
+      #show all records
+      $query = "SELECT * FROM Country";
+      $sth = $this->db->prepare($query);
+      $sth->execute();
+      $sth->setFetchMode( PDO::FETCH_ASSOC );
+      echo "<table border=\"5\">
+        <tr> <th> Country Code </th> <th> Country name </th> <th> timezone </th> <th> action </th>";
+ 
+      while( $row = $sth->fetch() ) {
+        echo <<<_HTML
+    <form method="post" >
+      <input type="hidden" name="code_old"        value=$row[code]>     </td>
+      <tr>
+        <td> <input type="text" name="code"       value=$row[code]>     </td>
+        <td> <input type="text" name="name"       value="$row[name]">   </td>
+        <td> <input type="text" name="timezone"   value=$row[timezone]> </td>
+        <td> <button name="command" type="submit" value="UPDATE_COUNTRY"> Update </button>
+             <button name="command" type="submit" value="DELETE_COUNTRY"> Delete </button> </td>
+      </tr>
+    </form>
+_HTML;
+      }
+      echo "</table>";
+    } catch( PDOException $e ) {
+      print "<h3> Error!: " . $e->getMessage() . "<br/> </h3>";
+    }
+  }
+}
+?>
