@@ -92,23 +92,23 @@ INSERT INTO Flight VALUES
   ( 7, 'SB310', 'MMJ', 'PTZ', '2014-03-02 20:00', '2014-03-03 02:00', 1000 ),
   ( 8, 'SB309', 'PTZ', 'DSM', '2014-03-03 05:00', '2014-03-03 06:00', 500  );
   
-  --   'SA311'
-  --TPE 20hr DSM
-  --
-  --   'SA312'              'SA313'
-  --TPE 2hr  MMJ | 3hr | MMJ 20hr DSM
-  --
-  --   'SA312'              'SA310'              'SA309'
-  --TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 3hr | PTZ 2hr DSM
-  --
-  --   'SA312'              'SB313'
-  --TPE 2hr  MMJ | 1hr | MMJ 20hr DSM
-  --
-  --   'SA312'              'SB310'              'SA309'
-  --TPE 2hr  MMJ | 1hr | MMJ 18hr PTZ | 5hr | PTZ 2hr DSM
-  --
-  --   'SA312'              'SA310'              'SB309'
-  --TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 1hr | PTZ 2hr DSM
+  --    'SA311'
+  -- TPE 20hr DSM
+  -- 
+  --    'SA312'              'SA313'
+  -- TPE 2hr  MMJ | 3hr | MMJ 20hr DSM
+  -- 
+  --    'SA312'              'SA310'              'SA309'
+  -- TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 3hr | PTZ 2hr DSM
+  -- 
+  --    'SA312'              'SB313'
+  -- TPE 2hr  MMJ | 1hr | MMJ 20hr DSM
+  -- 
+  --    'SA312'              'SB310'              'SA309'
+  -- TPE 2hr  MMJ | 1hr | MMJ 18hr PTZ | 5hr | PTZ 2hr DSM
+  -- 
+  --    'SA312'              'SA310'              'SB309'
+  -- TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 1hr | PTZ 2hr DSM
 
 -- Table structure for table `User`
 CREATE TABLE User

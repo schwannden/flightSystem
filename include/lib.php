@@ -309,20 +309,23 @@ _HTML;
           </form>
         </th>
 _HTML;
-      while( ($row = $sth->fetch( PDO::FETCH_ASSOC )) and $row[transition] <= $maximum_transition ) {
-        $flights = $row[first_flight] . "( $row[s1] -> $row[s2] )";
-        if( $row[first_flight] != $row[second_flight] )
-          $flights = $flights . "<br>" . $row[second_flight] . "( $row[s2] -> $row[s3] )";
-        if( $row[second_flight] != $row[third_flight] )
-          $flights = $flights . "<br>" . $row[third_flight] . "( $row[s3] -> $row[s4] )";
-      echo <<<_HTML
-  <tr>
-    <td> $row[transition] </td>  <td> $flights </td>
-    <td> $row[departure_date] </td>  <td> $row[arrival_date] </td>
-    <td> $row[flight_time] </td> <td> $row[transition_time] </td>
-    <td> $row[price] </td>
-  </tr>
+      while( ($row = $sth->fetch( PDO::FETCH_ASSOC )) ) {
+          if( $row[transition] <= $maximum_transition )
+          {
+          $flights = $row[first_flight] . "( $row[s1] -> $row[s2] )";
+          if( $row[first_flight] != $row[second_flight] )
+            $flights = $flights . "<br>" . $row[second_flight] . "( $row[s2] -> $row[s3] )";
+          if( $row[second_flight] != $row[third_flight] )
+            $flights = $flights . "<br>" . $row[third_flight] . "( $row[s3] -> $row[s4] )";
+        echo <<<_HTML
+    <tr>
+      <td> $row[transition] </td>  <td> $flights </td>
+      <td> $row[departure_date] </td>  <td> $row[arrival_date] </td>
+      <td> $row[flight_time] </td> <td> $row[transition_time] </td>
+      <td> $row[price] </td>
+    </tr>
 _HTML;
+        }
       }
       echo "</table>";
     } catch( PDOException $e ) {
