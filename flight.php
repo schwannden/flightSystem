@@ -83,6 +83,7 @@ if( isset( $_POST[command] ) )
     $flight_id = $_POST[id];
     $favorite = new favorite( $hostAndDb, $username, $password );
     $favorite->add( $user_id[id], $flight_id );
+    $flight->show($_SESSION[is_admin]);
   }
   else if( $_POST[command] == "SEARCH_FLIGHT" )
   {
@@ -196,7 +197,7 @@ _HTML;
 </body>
 </html>
 
-<script type="text/javascript", src="include/lib.js"> </script>
+<script type="text/javascript", src="lib.js"> </script>
 <script type="text/javascript">
   function reorderFlight( is_admin )
   {
