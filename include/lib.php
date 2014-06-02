@@ -495,6 +495,7 @@ class country {
 
   public function add($code, $name, $timezone) {
     try {
+      #echo "code: $code, name: $name, timezone: $timezone";
       $query = "INSERT into Country VALUES (?, ?, ?)";
       $sth = $this->db->prepare($query);
       $sth->execute( array($code, $name, $timezone) );

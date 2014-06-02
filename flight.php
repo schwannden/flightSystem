@@ -20,6 +20,8 @@ _HTML;
 }
 
 #admin only commands: add, delete, update flight or airport
+#print_r( $_SESSION );
+#print_r( $_POST );
 if( $_SESSION[is_admin] == true ) {
   echo "<br> <h2> Manage Flight </h2>";
   #admin issued a command
@@ -184,7 +186,7 @@ if( $_SESSION[is_admin] ) {
           code: <input type="text" name="code"      value="XYZ">
           name: <input type="text" name="name"      value="some country">
       timezone: <input type="text" name="timezone"  value="00:00:00">
-    <button name="command" type="submit" value="ADD_Country"> ADD COUNTRY </button> </form>
+    <button name="command" type="submit" value="ADD_COUNTRY"> ADD COUNTRY </button> </form>
   </pre>
 _HTML;
   $country->show();
