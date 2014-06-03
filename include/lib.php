@@ -453,7 +453,8 @@ class airport {
     #show all records
     $query = "SELECT
       Airport.code, Airport.name as aname, country, longitude, latitude, Country.name as cname
-      FROM Airport, Country where Airport.country = Country.code";
+      FROM Airport, Country where Airport.country = Country.code
+      ORDER BY country";
     $sth = $this->db->prepare($query);
     $sth->execute();
     $sth->setFetchMode( PDO::FETCH_ASSOC );
@@ -530,7 +531,7 @@ class country {
   public function show() {
     try{
       #show all records
-      $query = "SELECT * FROM Country";
+      $query = "SELECT * FROM Country ORDER BY name";
       $sth = $this->db->prepare($query);
       $sth->execute();
       $sth->setFetchMode( PDO::FETCH_ASSOC );

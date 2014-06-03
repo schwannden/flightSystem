@@ -14,26 +14,14 @@ CREATE TABLE Country (
 ) ENGINE=InnoDB;
 -- Dumping data for table `Country`
 -- ORDER BY:  `Code`
-INSERT INTO `Country` VALUES ('AFG','Afghanistan',    '4:30' );
-INSERT INTO `Country` VALUES ('BEL','Belgium',        '2:00' );
-INSERT INTO `Country` VALUES ('BRA','Brazil',         '-3:00');
-INSERT INTO `Country` VALUES ('CAN','Canada',         '-7:00');
-INSERT INTO `Country` VALUES ('CHE','Switzerland',    '2:00' );
-INSERT INTO `Country` VALUES ('DNK','Denmark',        '2:00' );
-INSERT INTO `Country` VALUES ('ECU','Ecuador',        '-5:00');
-INSERT INTO `Country` VALUES ('ESP','Spain',          '2:00' );
-INSERT INTO `Country` VALUES ('FIN','Finland',        '3:00' );
-INSERT INTO `Country` VALUES ('FRO','Faroe Islands',  '1:00' );
-INSERT INTO `Country` VALUES ('GBR','United Kingdom', '1:00' );
-INSERT INTO `Country` VALUES ('IND','India',          '5:30' );
-INSERT INTO `Country` VALUES ('JPN','Japan',          '9:00' );
-INSERT INTO `Country` VALUES ('MYS','Malaysia',       '8:00' );
-INSERT INTO `Country` VALUES ('NOR','Norway',         '2:00' );
-INSERT INTO `Country` VALUES ('NZL','New Zealand',    '12:00');
-INSERT INTO `Country` VALUES ('THA','Thailand',       '7:00' );
-INSERT INTO `Country` VALUES ('TWN','Taiwan',         '8:00' );
-INSERT INTO `Country` VALUES ('UKR','Ukraine',        '3:00' );
-INSERT INTO `Country` VALUES ('USA','United States',  '-5:00');
+INSERT INTO `Country` VALUES ('TWN', 'Taiwan',             '8:00' );
+INSERT INTO `Country` VALUES ('JP' , 'Japan',              '9:00' );
+INSERT INTO `Country` VALUES ('UK' , 'United Kingdom',     '0:00' );
+INSERT INTO `Country` VALUES ('US' , 'United States',      '-5:00');
+INSERT INTO `Country` VALUES ('CN' , 'China',              '8:00');
+INSERT INTO `Country` VALUES ('DOH', 'Doha',               '4:00');
+INSERT INTO `Country` VALUES ('SIN', 'Singapore',          '8:00');
+INSERT INTO `Country` VALUES ('RUS', 'Russian Federation', '4:00');
 
 -- Table structure for table `Airport`
 CREATE TABLE Airport (
@@ -46,26 +34,21 @@ CREATE TABLE Airport (
 ) ENGINE = InnoDB;
 -- Dumping data for table `Airport`
 -- ORDER BY:  `id`
-INSERT INTO Airport VALUES ( 'OAI', 'Bagram Airport'                  , 'AFG', 34.946098, 69.264999),
-                           ( 'BRU', 'Brussels National Airport'       , 'BEL', 50.901699, 4.494170 ),
-                           ( 'BAU', 'Bauru Airport'                   , 'BRA', -22.157801, -49.068298),
-                           ( 'YVR', 'Vancouver International Airport' , 'CAN', 49.187199, -123.184998),
-                           ( 'BRN', 'Bern Airport'                    , 'CHE', 46.915298, 7.499170),
-                           ( 'KRP', 'Karup Airport'                   , 'DNK', 56.299999, 9.116670),
-                           ( 'PTZ', 'Pastaza Airport'                 , 'ECU', -1.516670, -78.033302),
-                           ( 'EAS', 'San Sebastian Airport'           , 'ESP', 43.357800 , -1.790000),
-                           ( 'JYV', 'Jyvaskla Airport'                , 'FIN', 62.399200, 25.681900),
-                           ( 'FAE', 'Vagar Airport'                   , 'FRO', 62.063599, -7.277220),
-                           ( 'LON', 'London Mean Airport'             , 'GBR', 51.500000, -0.166667),
-                           ( 'DEL', 'Delhi Airport'                   , 'IND', 28.573601, 77.100800),
-                           ( 'MMJ', 'Matsumoto Airport'               , 'JPN', 36.166698, 137.923004),
-                           ( 'SZB', 'Sultan Abdul Aziz Shah Airport'  , 'MYS', 3.130280, 101.551003),
-                           ( 'GEN', 'Gardermoen Airport'              , 'NOR', 60.203098, 11.085300),
-                           ( 'WLG', 'Wellington International Airport', 'NZL', -41.323898, 174.800995),
-                           ( 'UTP', 'U Taphao International Airport'  , 'THA', 12.677800, 101.009003),
-                           ( 'TPE', 'Chiang Kai Airport'              , 'TWN', 121.22388, 25.07639),
-                           ( 'KBP', 'Kiev, Borispol Airport'          , 'UKR', 50.200001, 30.900000),
-                           ( 'DSM', 'Des Moines Muncipal Airport'     , 'USA', 41.533901, -93.656700);
+INSERT INTO Airport VALUES ('TPE','Taipei Touyuan International Airport','TWN', 0, 0),
+                           ('KHH','kaohsiung International Airport'     ,'TWN', 0, 0),
+                           ('TCH','Taichung Airport'                    ,'TWN', 0, 0),
+                           ('NGO','Chūbu Centrair International Airport','JP',  0, 0),
+                           ('HND','Tokyo International Airport'         ,'JP',  0, 0),
+                           ('NRT','Narita International Airport'        ,'JP',  0, 0),
+                           ('MAN','Manchester Airport'                  ,'UK',  0, 0),
+                           ('LHR','London Heathrow Airport'             ,'UK',  0, 0),
+                           ('LTN','London Luton Airport'                ,'UK',  0, 0),
+                           ('LCY','London City Airport'                 ,'UK',  0, 0),
+                           ('HKG','Hong Kong International Airport'     ,'CN',  0, 0),
+                           ('DOH','Doha International Airport'          ,'DOH', 0, 0),
+                           ('SIN','Singapore International Airport'     ,'SIN', 0, 0),
+                           ('LED','Aeroport Pulkovo'                    ,'RUS', 0, 0);
+                           
 
 -- Table structure for table `Flight`
 CREATE TABLE Flight
@@ -83,32 +66,39 @@ CREATE TABLE Flight
 -- Dumping data for table `Flight`
 -- ORDER BY:  `id`
 INSERT INTO Flight VALUES
-  ( 1, 'SA311', 'TPE', 'DSM', '2014-03-02 10:00', '2014-03-02 17:00', 2000 ),
-  ( 2, 'SA312', 'TPE', 'MMJ', '2014-03-02 16:00', '2014-03-02 19:00', 500  ),
-  ( 3, 'SA313', 'MMJ', 'DSM', '2014-03-02 22:00', '2014-03-03 04:00', 1500 ),
-  ( 4, 'SA310', 'MMJ', 'PTZ', '2014-03-02 22:00', '2014-03-03 04:00', 1000 ),
-  ( 5, 'SA309', 'PTZ', 'DSM', '2014-03-03 07:00', '2014-03-03 09:00', 500  ),
-  ( 6, 'SB313', 'MMJ', 'DSM', '2014-03-02 20:00', '2014-03-03 02:00', 1500 ),
-  ( 7, 'SB310', 'MMJ', 'PTZ', '2014-03-02 20:00', '2014-03-03 02:00', 1000 ),
-  ( 8, 'SB309', 'PTZ', 'DSM', '2014-03-03 05:00', '2014-03-03 06:00', 500  );
-  
-  --    'SA311'
-  -- TPE 20hr DSM
-  -- 
-  --    'SA312'              'SA313'
-  -- TPE 2hr  MMJ | 3hr | MMJ 20hr DSM
-  -- 
-  --    'SA312'              'SA310'              'SA309'
-  -- TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 3hr | PTZ 2hr DSM
-  -- 
-  --    'SA312'              'SB313'
-  -- TPE 2hr  MMJ | 1hr | MMJ 20hr DSM
-  -- 
-  --    'SA312'              'SB310'              'SA309'
-  -- TPE 2hr  MMJ | 1hr | MMJ 18hr PTZ | 5hr | PTZ 2hr DSM
-  -- 
-  --    'SA312'              'SA310'              'SB309'
-  -- TPE 2hr  MMJ | 3hr | MMJ 18hr PTZ | 1hr | PTZ 2hr DSM
+  ( 1,'JP-123','TPE','HND','2014-05-01 10:00:00','2014-05-01 12:00:00','6000'),
+  ( 2,'TM-123','TPE','MAN','2014-05-01 10:00:00','2014-05-01 19:00:00','20000'),
+  ( 3,'TH-123','TPE','HKG','2014-05-01 10:00:00','2014-05-01 11:30:00','4000'),
+  ( 4,'THK-123','TPE','HKG','2014-05-01 13:00:00','2014-05-01 20:22:00','13000'),
+  ( 5,'JP-124','TPE','NGO','2014-04-13 09:00:00','2014-04-13 12:27:00','1200'),
+  ( 6,'HG-128','TPE','HKG','2014-04-15 06:10:00','2014-04-15 07:41:00','2980'),
+  ( 7,'HK-228','KHH','HKG','2014-04-16 14:20:00','2014-04-16 15:51:00','6000'),
+  ( 8,'HN-225','KHH','HND','2014-04-10 12:17:00','2014-04-10 16:44:00','3998'),
+  ( 9,'HK-328','TCH','HKG','2014-04-10 15:22:00','2014-04-10 16:53:00','3500'),
+  (10,'SI-327','TCH','SIN','2014-04-27 10:00:00','2014-04-27 14:10:00','8000'),
+  (11,'HN-325','TCH','HND','2014-04-16 14:20:00','2014-04-16 18:27:00','6999'),
+  (12,'DH-429','NGO','DOH','2014-04-20 12:00:00','2014-04-20 19:00:00','20000'),
+  (13,'LC-413','NGO','LCY','2014-04-20 10:00:00','2014-04-20 14:00:00','21355'),
+  (14,'TP-421','NGO','TPE','2014-04-30 17:00:00','2014-04-30 19:27:00','5123'),
+  (15,'HK-428','NGO','HKG','2014-04-21 11:07:00','2014-04-21 14:07:00','6543'),
+  (16,'JPM-123','HND','MAN','2014-05-01 14:00:00','2014-05-01 23:00:00','15000'),
+  (17,'JHK-123','HND','HKG','2014-05-01 15:08:00','2014-05-01 19:00:00','12000'),
+  (18,'TP-521','HND','TPE','2014-04-24 10:00:00','2014-04-24 13:07:00','1630'),
+  (19,'NR-526','HND','NRT','2014-04-15 10:15:00','2014-04-15 11:16:00','1980'),
+  (20,'KH-722','SIN','KHH','2014-04-29 16:13:00','2014-04-29 20:23:00','12377'),
+  (21,'JP-725','SIN','HND','2014-04-17 06:00:00','2014-04-17 13:00:00','4830'),
+  (22,'HK-728','SIN','HKG','2014-04-18 07:25:00','2014-04-18 11:07:00','13333'),
+  (23,'TP-721','SIN','TPE','2014-05-01 17:01:00','2014-05-01 21:32:00','16875'),
+  (24,'HKD-123','HKG','DOH','2014-05-01 15:00:00','2014-05-01 23:00:00','10000'),
+  (25,'SI-827','HKG','SIN','2014-04-13 17:00:00','2014-04-13 20:42:00','16999'),
+  (26,'TP-821','HKG','TPE','2014-04-23 10:50:00','2014-04-23 12:21:00','6111'),
+  (27,'TP-822','HKG','KHH','2014-05-01 12:00:00','2014-05-01 13:35:00','3999'),
+  (28,'LE-814','HKG','LED','2014-04-20 13:00:00','2014-04-20 19:00:00','16875'),
+  (29,'TC-823','HKG','TCH','2014-04-26 10:12:00','2014-04-26 11:47:00','4895'),
+  (30,'DM-123','DOH','MAN','2014-05-02 02:00:00','2014-05-02 06:30:00','8000'),
+  (31,'SI-927','DOH','SIN','2014-04-25 10:00:00','2014-04-25 20:15:00','19387'),
+  (32,'HG-148','LED','HKG','2014-04-27 09:00:00','2014-04-27 22:07:00','14960'),
+  (33,'NR-146','LED','NRT','2014-04-25 04:00:00','2014-04-25 19:32:00','17992');
 
 -- Table structure for table `User`
 CREATE TABLE User
