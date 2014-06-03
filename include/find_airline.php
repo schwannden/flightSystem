@@ -55,7 +55,7 @@ function find_airline( $departure, $destination, $ordered_by, $ordered_how ) {
     where f1.departure = '$departure' and f3.destination = '$destination' and
           f1.destination = f2.departure and
           f2.destination = f3.departure and
-          a3.code != f2.arrival and
+          a3.code != f1.departure and
           a1.code = f1.departure and a2.code = f2.departure and
           a3.code = f3.departure and a4.code = f3.destination and
           TIMEDIFF( f2.departure_date, f1.arrival_date ) >= '02:00:00' and
